@@ -3,17 +3,29 @@
 
 <head>
   <title>Todo App</title>
-  <style>
-    #error {
-      display: none;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-  </style>
+    <style>
+      .hidden {
+        display: none;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        width: 200px;
+      }
+      li {
+        clear: both;
+      }
+      li button {
+        -webkit-appearance: none;
+        border: none;
+        outline: none;
+        color: red;
+        float: right;
+        cursor: pointer;
+        font-size: 20px;
+      }
+    </style>
 </head>
 
 <body>
@@ -24,11 +36,27 @@
   </form>
   <ul id="todos">
     {% for d in data %}
-    <li> <input class="check-completed" data-id="{{d.id}}" type="checkbox" {% if d.completed %} checked {% endif%}> {{
-      d.description }}</li>
+    <li> 
+      <input class="check-completed" data-id="{{d.id}}" type="checkbox" {% if d.completed %} checked {% endif%}> 
+      {{d.description }}
+      <button class="delete-button" data-id="{{ d.id }}">&cross;</button>
+    </li>
     {% endfor %}
   </ul>
   <script>
+    const deletebutton = document.querySelectorAll('.delete-button');
+    for (let i = 0; i < deletebutton.length ; i++) {
+      const button = deletebutton[i];
+      button.onclick = function(event) {
+      const id = event.target.dataset['id'];
+      fetch('/todos/'+id, {
+        method : 'delete',
+      }).then(function() {
+        const li = event.target.parentElement;
+        li.remove();
+      })
+      }
+    }
     const checkboxes = document.querySelectorAll('.check-completed');
     for (let i = 0; i < checkboxes.length; i++) {
       const checkbox = checkboxes[i];

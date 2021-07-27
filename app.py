@@ -18,8 +18,20 @@ class Todo(db.Model):
   def __repr__(self):
     return f'<Todo {self.id} {self.description}>'
 
+@app.route('/todos/<todo_id>', methods=['DELETE'])
+def delete_todo(todo_id):
+  try:
+    Todo.query.filter_by(id=todo_id).delete()
+    db.session.commit()
+  except SystemExit:
+    db.session.rollback()
+    raise 
+  finally:
+    db.session.close()
+  return jsonify({ 'success': True })
+
 @app.route('/todos/<todo_id>/update',methods = ['POST']) 
-def updateTodos(todo_id):
+def update_todos(todo_id):
   try:
    completed = request.get_json()['completed']
    todo = Todo.query.get(todo_id)
@@ -55,7 +67,7 @@ def create_todo():
 
 @app.route('/')
 def index():
-  return render_template('index.html', data=Todo.query.all())
+  return render_template('index.html', data=Todo.query.order_by('id').all())
 
 if __name__ == '__main__':
     app.run(debug =True)
